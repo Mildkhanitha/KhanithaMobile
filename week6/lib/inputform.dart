@@ -1,38 +1,84 @@
-import 'package:flutter/material.dart';
-import 'Shopping.dart'; 
 
-class Inputform extends StatefulWidget {
-  const Inputform({super.key});
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'shopping.dart'; 
+
+enum ProductTypeEnum { Downloadable, Deliverable,Onshop,Reserver }
+
+class MyTextField extends StatelessWidget {
+  const MyTextField({
+    Key? key,
+    required this.fieldName,
+    required this.myController,
+    this.myIcon = Icons.verified_user_outlined,
+    this.prefixIconColor = Colors.blueAccent,
+  }) : super(key: key);
+  final TextEditingController myController;
+  final String fieldName;
+  final IconData myIcon;
+  final Color prefixIconColor;
 
   @override
-  State<Inputform> createState() => _InputformState();
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: myController,
+      decoration: InputDecoration(
+          labelText: fieldName,
+          prefixIcon: Icon(
+            myIcon,
+            color: prefixIconColor,
+          ),
+          border: const OutlineInputBorder(),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.deepPurple.shade300),
+          ),
+          labelStyle: const TextStyle(color: Colors.deepPurple)),
+    );
+  }
 }
 
-class _InputformState extends State<Inputform> {
-  String _productName = "";
-  String _customerName = "";
-  
-  final _productController = TextEditingController();
-  final _customerController = TextEditingController();
+class MyForm extends StatefulWidget {
+  const MyForm({Key? key}) : super(key: key);
 
   @override
-  void initState(){
+  State<MyForm> createState() => _MyFormState();
+}
+
+class _MyFormState extends State<MyForm> {
+  // 2. กำหนดค่าเริ่มต้นเป็น "" เพื่อกัน Error เรื่อง Null
+  String _productName = "";
+  String _productDes = "";
+
+  final _productController = TextEditingController();
+  final _productDesController = TextEditingController();
+
+  //ProductTypeEnum? _productTypeEnum;
+  final _productSizesList = ["Small","Meduim","Large","Xlarge"];
+  String? _selectedVal = "";
+  _MyFormState(){
+    _selectedVal = _productSizesList[0];
+  }
+
+  bool? _listTileCheckbox = false;
+
+  @override
+  void initState() {
     super.initState();
     _productController.addListener(_updateText);
-    _customerController.addListener(_updateText);
+    _productDesController.addListener(_updateText);
   }
 
   @override
   void dispose() {
     _productController.dispose();
-    _customerController.dispose();
+    _productDesController.dispose();
     super.dispose();
   }
 
-  void _updateText(){
+  void _updateText() {
     setState(() {
       _productName = _productController.text;
-      _customerName = _customerController.text;
+      _productDes = _productDesController.text;
     });
   }
 
@@ -40,38 +86,103 @@ class _InputformState extends State<Inputform> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("App bar"),
+        title: const Text("Product"),
       ),
       body: Container(
         padding: const EdgeInsets.all(20.0),
         child: ListView(
           children: [
-            const Text("Input form", style: TextStyle(fontSize: 20)),
+            const Text("Product App", style: TextStyle(fontSize: 30)),
+            const Text("App Product detail in the form"),
+            const SizedBox(height: 10.0),
             TextField(
               controller: _productController,
               decoration: const InputDecoration(
-                hintText: "Product Name",
-                icon: Icon(Icons.verified_user_outlined),
-              ),
+                  hintText: "Product Name",
+                  icon: Icon(Icons.pin_drop_sharp),
+                  prefixIconColor: Colors.deepPurple),
             ),
+            const SizedBox(height: 20.0),
             TextFormField(
-              controller: _customerController,
+              controller: _productDesController,
               decoration: const InputDecoration(
-                labelText: "Customer Name",
-                icon: Icon(Icons.verified_user_outlined),
-              ),
+                  labelText: "Product Description",
+                  icon: Icon(Icons.pin_drop_sharp),
+                  prefixIconColor: Colors.deepPurple),
             ),
             const SizedBox(height: 20),
-            
-            mybtn(), // เรียกใช้งานปุ่ม
-            
-            const SizedBox(height: 20),
-            
-            // แสดงผล
-            Text("Product Name is : $_productName", 
-              style: const TextStyle(fontSize: 15)),
-            Text("Customer Name is : $_customerName",
-              style: const TextStyle(fontSize: 15)),
+            CheckboxListTile(
+              value: _listTileCheckbox,
+              title: const Text("Top Product"),
+              onChanged: (val) {
+                setState(() {
+                  _listTileCheckbox = val;
+                });
+              },
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+
+            DropdownButtonFormField(value: _selectedVal,items: _productSizesList.map((e) => DropdownMenuItem(child: Text(e),
+            value: e,
+            ))
+            .toList(), onChanged: (val){
+              setState(() {
+                _selectedVal = val as String;
+              });
+            },
+            icon: const Icon(Icons.arrow_drop_down_circle,
+            color: Colors.deepPurple),
+            dropdownColor: Colors.deepPurple.shade50,
+            decoration: InputDecoration(
+              labelText: "Product Sizes",
+              prefixIcon: Icon(Icons.accessibility_new_rounded,
+              color: Colors.deepPurple),
+              border: OutlineInputBorder()
+            ),
+            ),
+            /*RadioListTile<ProductTypeEnum>(
+              title: Text(ProductTypeEnum.Deliverable.name),
+              value: ProductTypeEnum.Deliverable, // แก้ให้ value ตรงกับ Title
+              groupValue: _productTypeEnum,
+              onChanged: (val) {
+                setState(() {
+                  _productTypeEnum = val;
+                });
+              },
+            ),
+             RadioListTile<ProductTypeEnum>(
+              title: Text(ProductTypeEnum.Downloadable.name), // เพิ่มอีกตัวเลือกเพื่อให้ครบ
+              value: ProductTypeEnum.Downloadable,
+              groupValue: _productTypeEnum,
+              onChanged: (val) {
+                setState(() {
+                  _productTypeEnum = val;
+                });
+              },
+            ),
+            RadioListTile<ProductTypeEnum>(
+              title: Text(ProductTypeEnum.Onshop.name), // เพิ่มอีกตัวเลือกเพื่อให้ครบ
+              value: ProductTypeEnum.Onshop,
+              groupValue: _productTypeEnum,
+              onChanged: (val) {
+                setState(() {
+                  _productTypeEnum = val;
+                });
+              },
+            ),
+            RadioListTile<ProductTypeEnum>(
+              title: Text(ProductTypeEnum.Reserver.name), // เพิ่มอีกตัวเลือกเพื่อให้ครบ
+              value: ProductTypeEnum.Reserver,
+              groupValue: _productTypeEnum,
+              onChanged: (val) {
+                setState(() {
+                  _productTypeEnum = val;
+                });
+              },
+            ),
+            const SizedBox(height: 20.0),
+            mybtn(), // ปุ่ม Submit
+            const SizedBox(height: 40.0),*/
           ],
         ),
       ),
@@ -85,8 +196,11 @@ class _InputformState extends State<Inputform> {
           context,
           MaterialPageRoute(
             builder: (context) {
-              // ตอนนี้ _productName เป็น String แน่นอนแล้ว เส้นแดงจะหายไปครับ
-              return formShopping(productname: _productName);
+              // ส่งค่าไปหน้า formShopping
+              return formShopping(
+                productname: _productName, 
+                productDes: _productDes
+              );
             },
           ),
         );

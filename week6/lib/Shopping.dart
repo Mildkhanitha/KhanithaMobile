@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 
 
 class formShopping extends StatelessWidget {
-  const formShopping({super.key, required this.productname});
-  final String productname;
+  formShopping({Key? key, required this.productname,required this.productDes}) 
+  : super(key: key);
+  final String productname,productDes;
+
 
   @override
   Widget build(BuildContext context) {

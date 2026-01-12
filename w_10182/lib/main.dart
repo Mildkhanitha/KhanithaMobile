@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:week6/inputform.dart';
-
+import 'form.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,11 +14,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-       
+        
+        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyForm()
+      home: const FormPage(),
     );
   }
 }
-
-
